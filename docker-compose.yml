@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  modbusim:
+    build: .
+    env_file:
+      - .env.docker
+    ports:
+      - "5020:5020"
+    volumes:
+      - .:/app
+      # Map the host's serial device to the container (only for RTU mode)
+      - /dev/ttyACM0:/dev/ttyACM0
+    devices:
+      - "/dev/ttyACM0:/dev/ttyACM0"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MODBUS_MODE=${MODBUS_MODE:-rtu}
+      - MODBUS_PORT=${MODBUS_PORT:-/dev/ttyACM0}
+      - MODBUS_BAUDRATE=${MODBUS_BAUDRATE:-9600}
+      - MODBUS_TIMEOUT=${MODBUS_TIMEOUT:-1.0}
+      - MODBUS_STOPBITS=${MODBUS_STOPBITS:-1}
+      - MODBUS_BYTESIZE=${MODBUS_BYTESIZE:-8}
+      - MODBUS_PARITY=${MODBUS_PARITY:-N}
+      - MODBUS_HOST=${MODBUS_HOST:-0.0.0.0}
+      - MODBUS_TCP_PORT=${MODBUS_TCP_PORT:-5020}
+    command: >
+      sh -c "if [ \"$${MODBUS_MODE}\" = \"rtu\" ]; then
+                poetry run modbusim rtu \
+                --port $${MODBUS_PORT} \
+                --baudrate $${MODBUS_BAUDRATE} \
+                --timeout $${MODBUS_TIMEOUT} \
+                --stopbits $${MODBUS_STOPBITS} \
+                --bytesize $${MODBUS_BYTESIZE} \
+                --parity $${MODBUS_PARITY}
+              else
+                poetry run modbusim tcp \
+                --host $${MODBUS_HOST} \
+                --port $${MODBUS_TCP_PORT}
+              fi"
+    healthcheck:
+      test: ["CMD", "/healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    privileged: true  # Required for accessing serial devices
+    restart: unless-stopped

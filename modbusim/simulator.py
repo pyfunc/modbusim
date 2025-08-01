@@ -9,11 +9,17 @@ from typing import Dict, List, Optional, Union
 
 from pymodbus.datastore import (
     ModbusSequentialDataBlock,
-    ModbusSlaveContext,
     ModbusServerContext,
+    ModbusSlaveContext,
+    ModbusSparseDataBlock,
 )
-from pymodbus.server.sync import StartSerialServer, StartTcpServer
-from pymodbus.transaction import ModbusRtuFramer, ModbusAsciiFramer, ModbusTcpFramer
+from pymodbus.server import StartSerialServer, StartTcpServer
+from pymodbus.transaction import (
+    ModbusRtuFramer,
+    ModbusAsciiFramer,
+    ModbusSocketFramer,
+    ModbusTlsFramer,
+)
 
 
 class ModbusSimulator:

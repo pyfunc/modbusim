@@ -6,15 +6,14 @@ and interact with it programmatically.
 """
 import time
 from modbusim import ModbusSimulator
+PORT1 = "/tmp/ptyp0"
+PORT2 = "/dev/ttyACM0"
 
 def main():
     """Run a basic Modbus RTU simulator with test values."""
     # Create a Modbus RTU simulator
-    with ModbusSimulator(port="/tmp/ptyp0", baudrate=9600) as simulator:
+    with ModbusSimulator(port=PORT2, baudrate=9600) as simulator:
         # Set some test values
-        simulator.set_values(0, [1, 0, 1, 0], "co")  # Coils 0-3
-        simulator.set_values(0, [1234, 5678, 9012], "hr")  # Holding Registers 0-2
-        
         print("Modbus RTU simulator is running...")
         print("Test values set:")
         print(f"  - Coils 0-3: {simulator.get_values(0, 4, 'co')}")
